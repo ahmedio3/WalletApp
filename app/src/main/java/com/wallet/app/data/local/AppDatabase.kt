@@ -54,18 +54,23 @@ abstract class AppDatabase : RoomDatabase() {
         private class SeedDatabaseCallback : Callback() {
             override fun onCreate(db: SupportSQLiteDatabase) {
                 super.onCreate(db)
-                // Insert default categories
-                Constants.DEFAULT_CATEGORIES.forEachIndexed { index, cat ->
+                try {
+                    // Insert default categories
+                    Constants.DEFAULT_CATEGORIES.forEachIndexed { index, cat ->
+                        db.execSQL(
+                            "INSERT INTO categories (name, emoji, color, sortOrder) VALUES (?, ?, ?, ?)",
+                            arrayOf<Any>(cat.name, cat.emoji, cat.color, index)
+                        )
+                    }
+                    // Insert default wallet
+                    val now = System.currentTimeMillis()
                     db.execSQL(
-                        "INSERT INTO categories (name, emoji, color, sortOrder) VALUES (?, ?, ?, ?)",
-                        arrayOf(cat.name, cat.emoji, cat.color, index)
+                        "INSERT INTO wallets (name, emoji, balance, isPrimary, createdAt) VALUES (?, ?, ?, ?, ?)",
+                        arrayOf<Any>("Cash", "\uD83D\uDCB5", 0.0, 1, now)
                     )
+                } catch (e: Exception) {
+                    android.util.Log.e("WalletApp", "Failed to seed database", e)
                 }
-                // Insert default wallet
-                db.execSQL(
-                    "INSERT INTO wallets (name, emoji, balance, isPrimary) VALUES (?, ?, ?, ?)",
-                    arrayOf("Cash", "\uD83D\uDCB5", 0.0, 1)
-                )
             }
         }
     }
