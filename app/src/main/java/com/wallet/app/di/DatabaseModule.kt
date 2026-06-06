@@ -1,7 +1,6 @@
 package com.wallet.app.di
 
 import android.content.Context
-import androidx.room.Room
 import com.wallet.app.data.local.AppDatabase
 import com.wallet.app.data.local.dao.*
 import dagger.Module
@@ -18,11 +17,7 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): AppDatabase =
-        Room.databaseBuilder(
-            context.applicationContext,
-            AppDatabase::class.java,
-            "wallet_db"
-        ).build()
+        AppDatabase.getInstance(context)
 
     @Provides fun provideWalletDao(db: AppDatabase): WalletDao = db.walletDao()
     @Provides fun provideCategoryDao(db: AppDatabase): CategoryDao = db.categoryDao()

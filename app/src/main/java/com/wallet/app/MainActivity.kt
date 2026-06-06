@@ -15,7 +15,11 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        try {
+            enableEdgeToEdge()
+        } catch (_: Exception) {
+            // EdgeToEdge not available on some devices
+        }
         setContent {
             WalletTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {

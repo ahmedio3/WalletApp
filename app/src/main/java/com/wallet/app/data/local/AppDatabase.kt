@@ -8,9 +8,6 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.wallet.app.data.local.dao.*
 import com.wallet.app.data.local.entity.*
 import com.wallet.app.util.Constants
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 @Database(
     entities = [
@@ -36,6 +33,7 @@ abstract class AppDatabase : RoomDatabase() {
 
         fun getInstance(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
+                if (INSTANCE != null) return INSTANCE!!
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
@@ -48,42 +46,27 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * Seed data using raw SQL in the Room callback.
+         * This runs synchronously during DB creation, before any DAO access.
+         * Uses SupportSQLiteDatabase directly since the Room instance isn't available yet.
+         */
         private class SeedDatabaseCallback : Callback() {
             override fun onCreate(db: SupportSQLiteDatabase) {
                 super.onCreate(db)
-                INSTANCE?.let { database ->
-                    CoroutineScope(Dispatchers.IO).launch {
-                        seedCategories(database.categoryDao())
-                        seedWallets(database.walletDao())
-                    }
+                // Insert default categories
+                Constants.DEFAULT_CATEGORIES.forEachIndexed { index, cat ->
+                    db.execSQL(
+                        "INSERT INTO categories (name, emoji, color, sortOrder) VALUES (?, ?, ?, ?)",
+                        arrayOf(cat.name, cat.emoji, cat.color, index)
+                    )
                 }
-            }
-        }
-
-        private suspend fun seedCategories(categoryDao: CategoryDao) {
-            if (categoryDao.getCount() == 0) {
-                categoryDao.insertAll(
-                    Constants.DEFAULT_CATEGORIES.mapIndexed { index, cat ->
-                        CategoryEntity(
-                            name = cat.name,
-                            emoji = cat.emoji,
-                            color = cat.color,
-                            sortOrder = index
-                        )
-                    }
+                // Insert default wallet
+                db.execSQL(
+                    "INSERT INTO wallets (name, emoji, balance, isPrimary) VALUES (?, ?, ?, ?)",
+                    arrayOf("Cash", "\uD83D\uDCB5", 0.0, 1)
                 )
             }
-        }
-
-        private suspend fun seedWallets(walletDao: WalletDao) {
-            walletDao.insert(
-                WalletEntity(
-                    name = "Cash",
-                    emoji = "\uD83D\uDCB5",
-                    balance = 0.0,
-                    isPrimary = true
-                )
-            )
         }
     }
 }
