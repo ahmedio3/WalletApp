@@ -2,8 +2,7 @@ package com.wallet.app.domain.usecase
 
 import com.wallet.app.domain.model.CategoryBreakdown
 import com.wallet.app.domain.model.MonthlyReport
-import com.wallet.app.domain.model.Transaction
-import com.wallet.app.domain.repository.CategoryRepository
+import com.wallet.app.domain.repository.AnalyticsRepository
 import com.wallet.app.domain.repository.TransactionRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -13,7 +12,7 @@ import javax.inject.Inject
 
 class GetMonthlyReportUseCase @Inject constructor(
     private val transactionRepository: TransactionRepository,
-    private val categoryRepository: CategoryRepository
+    private val analyticsRepository: AnalyticsRepository
 ) {
     operator fun invoke(year: Int, month: Int): Flow<MonthlyReport> = flow {
         val cal = Calendar.getInstance()
@@ -28,26 +27,7 @@ class GetMonthlyReportUseCase @Inject constructor(
         val income = transactionRepository.getTotalIncome(startDate, endDate).first() ?: 0.0
         val expense = transactionRepository.getTotalExpense(startDate, endDate).first() ?: 0.0
 
-        val categories = mutableListOf<CategoryBreakdown>()
-        val categoryExpenses = transactionRepository.getExpensesBetweenDates(startDate, endDate).first()
-
-        val totalExpense = categoryExpenses.sumOf { it.total }
-
-        for (ce in categoryExpenses) {
-            val category = categoryRepository.getCategoryById(ce.categoryId)
-            if (category != null) {
-                categories.add(
-                    CategoryBreakdown(
-                        categoryId = ce.categoryId,
-                        categoryName = category.name,
-                        categoryEmoji = category.emoji,
-                        categoryColor = category.color.value.toLong(),
-                        amount = ce.total,
-                        percentage = if (totalExpense > 0) (ce.total / totalExpense).toFloat() else 0f
-                    )
-                )
-            }
-        }
+        val categoryBreakdown = analyticsRepository.getCategoryBreakdown(startDate, endDate).first()
 
         val monthName = java.text.DateFormatSymbols().months[month - 1]
         emit(
@@ -55,7 +35,7 @@ class GetMonthlyReportUseCase @Inject constructor(
                 month = "$monthName $year",
                 income = income,
                 expense = expense,
-                categories = categories.sortedByDescending { it.amount }
+                categories = categoryBreakdown
             )
         )
     }

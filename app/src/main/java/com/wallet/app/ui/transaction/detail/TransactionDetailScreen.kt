@@ -13,9 +13,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.background
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewModelScope
 import com.wallet.app.domain.model.Transaction
 import com.wallet.app.domain.repository.TransactionRepository
 import com.wallet.app.ui.theme.*
@@ -108,12 +110,12 @@ fun TransactionDetailScreen(
                 ) {
                     Column(modifier = Modifier.padding(20.dp)) {
                         DetailRow(label = "Type", value = tx.type.name)
-                        HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
+                        Divider(modifier = Modifier.padding(vertical = 12.dp))
                         DetailRow(label = "Wallet", value = tx.walletName)
-                        HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
+                        Divider(modifier = Modifier.padding(vertical = 12.dp))
                         DetailRow(label = "Date", value = DateUtils.formatDate(tx.date))
                         if (tx.note.isNotBlank()) {
-                            HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
+                            Divider(modifier = Modifier.padding(vertical = 12.dp))
                             DetailRow(label = "Note", value = tx.note)
                         }
                     }

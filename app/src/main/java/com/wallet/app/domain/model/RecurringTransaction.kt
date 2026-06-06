@@ -13,7 +13,8 @@ data class RecurringTransaction(
     val nextDate: Date = Date(),
     val isActive: Boolean = true,
     val categoryName: String = "",
-    val categoryEmoji: String = "\uD83D\uDCB0"
+    val categoryEmoji: String = "\uD83D\uDCB0",
+    val categoryColor: Long = 0xFF6366F1
 ) {
     enum class RecurringInterval { DAILY, WEEKLY, MONTHLY, YEARLY }
 }

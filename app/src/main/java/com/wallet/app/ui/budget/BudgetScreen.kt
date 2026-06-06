@@ -87,8 +87,9 @@ fun BudgetScreen(
                             )
                         }
                         Spacer(Modifier.height(12.dp))
+                        @Suppress("DEPRECATION")
                         LinearProgressIndicator(
-                            progress = { overallProgress },
+                            progress = overallProgress,
                             modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)),
                             color = if (overallProgress > 0.8f) ExpenseRed else IncomeGreen,
                             trackColor = Color.White.copy(alpha = 0.2f)

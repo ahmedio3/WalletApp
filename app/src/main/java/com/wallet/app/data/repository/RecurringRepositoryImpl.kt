@@ -18,7 +18,7 @@ class RecurringRepositoryImpl @Inject constructor(
     private val categoryDao: CategoryDao
 ) : RecurringRepository {
 
-    private fun RecurringEntity.toDomain(): RecurringTransaction {
+    private suspend fun RecurringEntity.toDomain(): RecurringTransaction {
         val category = categoryDao.getCategoryById(categoryId)
         return RecurringTransaction(
             id = id,
@@ -36,7 +36,8 @@ class RecurringRepositoryImpl @Inject constructor(
             nextDate = Date(nextDate),
             isActive = isActive,
             categoryName = category?.name ?: "Unknown",
-            categoryEmoji = category?.emoji ?: "\uD83D\uDCB0"
+            categoryEmoji = category?.emoji ?: "\uD83D\uDCB0",
+            categoryColor = category?.color ?: 0xFF6366F1
         )
     }
 

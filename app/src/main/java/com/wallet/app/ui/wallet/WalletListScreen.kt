@@ -168,7 +168,7 @@ fun WalletListScreen(
                             }
                         }
 
-                        HorizontalDivider()
+                        Divider()
 
                         // To
                         Text("To:", style = MaterialTheme.typography.labelMedium)
